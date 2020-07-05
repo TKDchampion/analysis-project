@@ -22,8 +22,8 @@ class UserModel {
     }
 
     public login(req: any) {
-        const account = req.query.account;
-        const password = req.query.password;
+        const account = req.body.account;
+        const password = req.body.password;
         const user = new UserInfoInstance({ account, password })
         const dbRoute = 'users'
         const reference = db.collection(dbRoute).doc('user');
@@ -41,8 +41,6 @@ class UserModel {
                 return token
             }
             return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
-            // return userinfo;
-
         }
         return formatResultFn;
     }

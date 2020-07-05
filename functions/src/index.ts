@@ -1,19 +1,17 @@
 import * as functions from 'firebase-functions';
 import * as express from 'express';
-import * as bodyParser from "body-parser";
 import * as path from "path";
 import * as createError from "http-errors";
 import * as cors from "cors";
-
 import { router } from './router/router';
 import { ErrorContent, ErrorContentInstance } from './view-model/error-viewmodel';
+
 
 const app = express();
 const main = express();
 
-main.use('/api/v1', app);
-main.use(bodyParser.json());
-app.use(cors());
+app.use(cors())
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -29,5 +27,7 @@ app.use(function (err:any, req:any, res:any, next:any) {
     const errorContent: ErrorContent = new ErrorContentInstance(err)
     res.json(errorContent);
 });
+
+main.use('/api/v1', app);
 
 export const webApi = functions.https.onRequest(main);
