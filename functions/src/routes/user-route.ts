@@ -10,5 +10,6 @@ export class UserRoute extends Route {
 
     protected setRoutes() {
         this.router.get('/getAllAccounts', userController.getAllAccounts);
+        this.router.get('/login', userController.login);
     }
 }

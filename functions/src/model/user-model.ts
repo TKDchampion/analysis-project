@@ -1,6 +1,8 @@
 import { db } from "../detabase/setting";
 import { dataBase } from "../detabase/db-interface";
-
+import { UserInfoInstance, UserInfo } from "../view-model/user-view-model";
+import { ErrorContent } from "../view-model/error-viewmodel";
+const jwt = require('jsonwebtoken')
 
 class UserModel {
     public getAllAccounts(req: any) {
@@ -17,6 +19,32 @@ class UserModel {
         }
         const asyncData = dataBase.get({ reference: reference }, formatResultFn);
         return asyncData;
+    }
+
+    public login(req: any) {
+        const account = req.query.account;
+        const password = req.query.password;
+        const user = new UserInfoInstance({ account, password })
+        const dbRoute = 'users'
+        const reference = db.collection(dbRoute).doc('user');
+        const asyncData = dataBase.get({ reference: reference }, this.verify(user));
+        return asyncData;
+    }
+
+    private verify(userinfo: UserInfo) {
+        const formatResultFn = (result: any) => {
+            const resultData = result.data().member;
+            const user = resultData.find((data: UserInfo) => data.account === userinfo.account && data.password === userinfo.password);
+            if (user) {
+                const payload = JSON.parse(JSON.stringify(new UserInfoInstance(user)));
+                const token = jwt.sign(payload, 'shhhhh');
+                return token
+            }
+            return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
+            // return userinfo;
+
+        }
+        return formatResultFn;
     }
 }
 
