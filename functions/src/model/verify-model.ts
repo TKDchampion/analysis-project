@@ -5,9 +5,9 @@ class VerifyModel {
     public account: string = '';
     public password: string = '';
 
-    public verifyToken(req:any){
+    public verifyToken(req: any) {
         const secretKey = 'shhhhh';
-        const token = jwt.verify(req.header('Authorization').replace('Bearer ',''), secretKey);
+        const token = jwt.verify(req.header('Authorization').replace('Bearer ', ''), secretKey);
         return token;
     }
 }

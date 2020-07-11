@@ -25,6 +25,7 @@ class UserModel {
     public login(req: any) {
         const account = req.body.account;
         const password = req.body.password;
+
         const user = new UserInfoInstance({ account, password })
         const dbRoute = 'users'
         const reference = db.collection(dbRoute).doc('user');
