@@ -6,7 +6,6 @@ class UserController {
     getAllAccounts(req: Request, res: Response) {
         const result = userModel.getAllAccounts(req)
         result.then((response: any) => res.send(response))
-            // .catch((error: any) => res.status(500).send(error))
     }
 
     login(req: Request, res: Response) {

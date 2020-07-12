@@ -10,5 +10,6 @@ export class PlayerRoute extends Route {
 
     protected setRoutes() {
         this.router.get('/getPlayerList', playerController.getPlayersList)
+        this.router.get('/getPlayerListId', playerController.getPlayersListId)
     }
 }
