@@ -22,6 +22,21 @@ class VerifyModel {
             })
     }
 
+    public verifyCounts(req: any, ftn: Function) {
+        return jwt.verify(req.header('Authorization').replace('Bearer ', ''), 'shhhhh',
+            (error: { message: any; }, decoded: any) => {
+                if (error) {
+                    return this.formatResultErrorFn;
+                }
+
+                if (decoded.counts > 0) {
+                    return ftn
+                } else {
+                    return this.formatResultErrorFn;
+                }
+            })
+    }
+
     private formatResultErrorFn = (result: any) => {
         return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
     }

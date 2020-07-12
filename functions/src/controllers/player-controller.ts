@@ -12,6 +12,11 @@ class PlayerController {
         const result = playerModel.getPlayersListId(req);
         result.then((response: any) => res.send(response));
     }
+
+    getPlayersListAnalysisId(req: Request, res: Response) {
+        const result = playerModel.getPlayersListAnalysisId(req);
+        result.then((response: any) => res.send(response));
+    }
 }
 
 export const playerController = new PlayerController();
