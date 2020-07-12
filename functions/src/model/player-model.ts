@@ -15,10 +15,13 @@ class PlayerModel {
         const reference = db.collection('playersList').doc('winRate');
         const formatResultFn = (result: any) => {
             const filterItem = result.data().teamWinRate.find((i: any) => i.teamId === id);
-            const filterItemVs = filterItem.vs.find((i: any) => i.active === true);
-            delete filterItemVs.win;
-            delete filterItemVs.myWin;
-            return filterItemVs;
+            filterItem.vs.forEach((i: any) => {
+                if (i.active) {
+                    delete i.win;
+                    delete i.myWin;
+                }
+            });
+            return filterItem;
         };
         const asyncData = dataBase.get({ reference: reference }, formatResultFn);
         return asyncData;
