@@ -44,19 +44,24 @@ class PlayerModel {
         return asyncData;
     }
 
-    private getPlayersListAnalysisUser(item: any, account: string, time: string, vsId:string) {
+    private getPlayersListAnalysisUser(item: any, account: string, time: string, vsId: string) {
         const userReference = db.collection('users').doc('user');
         return userReference.get()
             .then((query: any) => {
                 let list = query.data().member;
                 const index = list.findIndex((i: any) => i.account === account);
                 const user = list.find((i: any) => i.account === account);
-                if (user.read.time === time && user.read.active.includes(vsId)) {
-                    list = list
+                if (user.read.time === time) {
+                    if (user.read.active.includes(vsId)) {
+                        list = list
+                    } else {
+                        list[index].counts = user.counts - 1;
+                        list[index].read.active.push(vsId);
+                    }
                 } else {
                     list[index].counts = user.counts - 1;
                     list[index].read.time = time;
-                    list[index].read.active.push(vsId);
+                    list[index].read.active = [vsId];
                 }
                 return userReference.set({ member: list }, { merge: true })
                     .then(function () {
