@@ -37,6 +37,25 @@ class VerifyModel {
             })
     }
 
+    public verifyContain(req: any, ftn: Function) {
+        return jwt.verify(req.header('Authorization').replace('Bearer ', ''), 'shhhhh',
+            (error: { message: any; }, decoded: any) => {
+                if (error) {
+                    return this.formatResultErrorFn;
+                }
+
+                if (decoded.counts > 0) {
+                    return this.getToken(req);
+                } else {
+                    return this.formatResultErrorFn;
+                }
+            })
+    }
+
+    public getToken(req: any) {
+        return jwt.verify(req.header('Authorization').replace('Bearer ', ''), 'shhhhh')
+    }
+
     private formatResultErrorFn = (result: any) => {
         return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
     }

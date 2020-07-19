@@ -40,7 +40,7 @@ class UserModel {
             if (user) {
                 const payload = JSON.parse(JSON.stringify(new UserInfoInstance(user)));
                 const token = jwt.sign(payload, 'shhhhh');
-                return { access_token: token ,token_type: 'Bearer'}
+                return { access_token: token ,token_type: 'Bearer', account: user.account, counts: user.counts}
             }
             return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
         }

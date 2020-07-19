@@ -8,6 +8,13 @@ class DbInterface {
             return query;
         });
     }
+
+    put(params: DbViewModel, merge = true, verify?: Function) {
+        return params.reference.set(params.setParams, { merge: merge }).then((res: any) => {
+            if (verify) { res = verify(res) }
+            return res
+        })
+    }
 }
 
 export const dataBase = new DbInterface();
