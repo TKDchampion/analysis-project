@@ -77,6 +77,17 @@ class PlayerModel {
             });
     }
 
+    public getPlayerMessagesId(req: any) {
+        const id = req.query.id;
+        const reference = db.collection('playersList').doc('messages');
+        const formatResultFn = (result: any) => {
+            const filterItem = result.data().messages.find((i: any) => i.teamId === id);
+            return filterItem
+        };
+        const asyncData = dataBase.get({ reference: reference }, formatResultFn);
+        return asyncData;
+    }
+
 
 
 }

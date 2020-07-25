@@ -17,6 +17,11 @@ class PlayerController {
         const result = playerModel.getPlayersListAnalysisId(req);
         result.then((response: any) => res.send(response));
     }
+
+    getPlayerMessagesId(req: Request, res: Response) {
+        const result = playerModel.getPlayerMessagesId(req);
+        result.then((response: any) => res.send(response));
+    }
 }
 
 export const playerController = new PlayerController();
