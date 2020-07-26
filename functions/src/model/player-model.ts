@@ -1,7 +1,7 @@
 import { db } from "../detabase/setting";
 import { dataBase } from "../detabase/db-interface";
 import { verify } from "./verify-model";
-// import * as admin from 'firebase-admin';
+import * as admin from 'firebase-admin';
 
 class PlayerModel {
     public getPlayersList(req: any) {
@@ -85,12 +85,8 @@ class PlayerModel {
             const teamIdObj = `teamId${id}`
             const filterItemList = result.data()[teamIdObj];
             filterItemList.forEach((element: any) => {
-                if(element.replyId){
-                    const replyObj = `replyId${element.replyId}`;
-                    element.replyConuts = result.data()[replyObj].length;
-                }else{
-                    element.replyConuts = 0;
-                }
+                const replyObj = `replyId${element.replyId}`;
+                element.replyConuts = result.data()[replyObj] ? result.data()[replyObj].length : 0;
             });
             return filterItemList
         };
@@ -110,6 +106,16 @@ class PlayerModel {
         return asyncData;
     }
 
+    public putPlayerMessages(req: any) {
+        const teamId = req.query.teamId;
+        const obj = req.body;
+        const reference = db.collection('playersList').doc('messages');
+        const teamIdObj = `teamId${teamId}`;
+        const setParams: any = {};
+        setParams[teamIdObj] = admin.firestore.FieldValue.arrayUnion(obj);
+        const asyncData = dataBase.put({ reference: reference, setParams: setParams });
+        return asyncData;
+    }
 
     // test(req: any) {
     //     const name = req.body.name;
