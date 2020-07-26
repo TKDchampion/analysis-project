@@ -22,6 +22,11 @@ class PlayerController {
         const result = playerModel.getPlayerMessagesId(req);
         result.then((response: any) => res.send(response));
     }
+
+    getPlayerMessagesReplyId(req: Request, res: Response) {
+        const result = playerModel.getPlayerMessagesReplyId(req);
+        result.then((response: any) => res.send(response));
+    }
 }
 
 export const playerController = new PlayerController();

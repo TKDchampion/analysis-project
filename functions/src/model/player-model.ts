@@ -1,6 +1,7 @@
 import { db } from "../detabase/setting";
 import { dataBase } from "../detabase/db-interface";
 import { verify } from "./verify-model";
+// import * as admin from 'firebase-admin';
 
 class PlayerModel {
     public getPlayersList(req: any) {
@@ -81,15 +82,43 @@ class PlayerModel {
         const id = req.query.id;
         const reference = db.collection('playersList').doc('messages');
         const formatResultFn = (result: any) => {
-            const filterItem = result.data().messages.find((i: any) => i.teamId === id);
-            return filterItem
+            const teamIdObj = `teamId${id}`
+            const filterItemList = result.data()[teamIdObj];
+            filterItemList.forEach((element: any) => {
+                if(element.replyId){
+                    const replyObj = `replyId${element.replyId}`;
+                    element.replyConuts = result.data()[replyObj].length;
+                }else{
+                    element.replyConuts = 0;
+                }
+            });
+            return filterItemList
+        };
+        const asyncData = dataBase.get({ reference: reference }, formatResultFn);
+        return asyncData;
+    }
+
+    public getPlayerMessagesReplyId(req: any) {
+        const id = req.query.id;
+        const reference = db.collection('playersList').doc('messages');
+        const formatResultFn = (result: any) => {
+            const replyObj = `replyId${id}`;
+            const filterItemList = result.data()[replyObj];
+            return filterItemList
         };
         const asyncData = dataBase.get({ reference: reference }, formatResultFn);
         return asyncData;
     }
 
 
-
+    // test(req: any) {
+    //     const name = req.body.name;
+    //     const reference = db.collection('playersList').doc('test');
+    //     const setParams = { "characteristics": admin.firestore.FieldValue.arrayUnion({name}) };
+    //     const setParams = { "characteristics": admin.firestore.FieldValue.arrayRemove(test) };
+    //     const asyncData = dataBase.put({ reference: reference, setParams: setParams });
+    //     return asyncData;
+    // }
 }
 
 export const playerModel = new PlayerModel();
