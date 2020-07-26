@@ -88,6 +88,7 @@ class PlayerModel {
                 const replyObj = `replyId${element.replyId}`;
                 element.replyConuts = result.data()[replyObj] ? result.data()[replyObj].length : 0;
             });
+            filterItemList.sort((a: any, b: any) => { return new Date(a.time) > new Date(b.time) ? -1 : 1; });
             return filterItemList
         };
         const asyncData = dataBase.get({ reference: reference }, formatResultFn);
@@ -99,8 +100,9 @@ class PlayerModel {
         const reference = db.collection('playersList').doc('messages');
         const formatResultFn = (result: any) => {
             const replyObj = `replyId${id}`;
-            const filterItemList = result.data()[replyObj];
-            return filterItemList
+            const filterItemList = result.data()[replyObj] ? result.data()[replyObj] : [];
+            filterItemList.sort((a: any, b: any) => { return new Date(a.time) > new Date(b.time) ? -1 : 1; });
+            return filterItemList;
         };
         const asyncData = dataBase.get({ reference: reference }, formatResultFn);
         return asyncData;
