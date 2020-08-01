@@ -32,6 +32,11 @@ class PlayerController {
         const result = playerModel.putPlayerMessages(req);
         result.then((response: any) => res.send(response));
     }
+
+    test(req: Request, res: Response) {
+        const result = playerModel.test(req);
+        result.then((response: any) => res.send(response));
+    }
 }
 
 export const playerController = new PlayerController();

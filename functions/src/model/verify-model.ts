@@ -44,7 +44,7 @@ class VerifyModel {
                     return this.formatResultErrorFn;
                 }
 
-                if (decoded.counts > 0) {
+                if (decoded.account) {
                     return this.getToken(req);
                 } else {
                     return this.formatResultErrorFn;

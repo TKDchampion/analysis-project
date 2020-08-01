@@ -15,5 +15,7 @@ export class PlayerRoute extends Route {
         this.router.get('/getPlayerMessagesId', playerController.getPlayerMessagesId);
         this.router.get('/getPlayerMessagesReplyId', playerController.getPlayerMessagesReplyId);
         this.router.put('/putPlayerMessages', playerController.putPlayerMessages);
+        this.router.get('/test', playerController.test);
+
     }
 }

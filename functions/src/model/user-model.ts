@@ -35,12 +35,12 @@ class UserModel {
 
     private verify(userinfo: UserInfo) {
         const formatResultFn = (result: any) => {
-            const resultData = result.data().member;
-            const user = resultData.find((data: UserInfo) => data.account === userinfo.account && data.password === userinfo.password);
+            const resultData = Object.values(result.data());
+            const user: any = resultData.find((data: any) => data.account === userinfo.account && data.password === userinfo.password);
             if (user) {
                 const payload = JSON.parse(JSON.stringify(new UserInfoInstance(user)));
                 const token = jwt.sign(payload, 'shhhhh');
-                return { access_token: token ,token_type: 'Bearer', account: user.account, userId: user.userId}
+                return { access_token: token, token_type: 'Bearer', account: user.account, userId: user.userId }
             }
             return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
         }

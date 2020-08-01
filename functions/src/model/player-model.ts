@@ -16,15 +16,15 @@ class PlayerModel {
         const time = req.query.time;
         const reference = db.collection('playersList').doc('winRate');
         const formatResultFn = (result: any) => {
-            const filterItem = result.data().teamWinRate.find((i: any) => i.teamId === id);
-            filterItem.vs.forEach((i: any) => {
+            const list = Object.values(result.data());
+            const filterList = list.filter((i: any) => i.team1_id === id || i.team2_id === id);
+            filterList.forEach((i: any) => {
                 if (i.active) {
-                    delete i.win;
-                    delete i.myWin;
+                    delete i.team1_winRate;
+                    delete i.team2_winRate;
                 }
             });
-            filterItem.vs = filterItem.vs.filter((i: any) => i.time === time);
-            return filterItem
+            return filterList.filter((i: any) => i.time === time);
         };
         const asyncData = dataBase.get({ reference: reference }, formatResultFn);
         return asyncData;
@@ -34,37 +34,38 @@ class PlayerModel {
         const id = req.body.id;
         const account = req.body.account;
         const time = req.body.time;
-        const vsId = req.body.vsId;
+        const game_id = req.body.game_id;
         const reference = db.collection('playersList').doc('winRate');
         const formatResultFn = (result: any) => {
-            const filterItem = result.data().teamWinRate.find((i: any) => i.teamId === id);
-            const filterItemVs = filterItem.vs.find((i: any) => i.active === true);
-            return this.getPlayersListAnalysisUser(filterItemVs, account, time, vsId);
+            const list = Object.values(result.data());
+            const filterList = list.filter((i: any) => i.team1_id === id || i.team2_id === id);
+            const filterItemVs = filterList.find((i: any) => i.active === true);
+            return this.getPlayersListAnalysisUser(filterItemVs, account, time, game_id);
         };
         const asyncData = dataBase.get({ reference: reference }, verify.verifyCounts(req, formatResultFn));
+
         return asyncData;
     }
 
-    private getPlayersListAnalysisUser(item: any, account: string, time: string, vsId: string) {
+    private getPlayersListAnalysisUser(item: any, account: string, time: string, game_id: string) {
         const userReference = db.collection('users').doc('user');
         return userReference.get()
             .then((query: any) => {
-                let list = query.data().member;
-                const index = list.findIndex((i: any) => i.account === account);
+                const list: any = Object.values(query.data());
                 const user = list.find((i: any) => i.account === account);
                 if (user.read.time === time) {
-                    if (user.read.active.includes(vsId)) {
-                        list = list
-                    } else {
-                        list[index].counts = user.counts - 1;
-                        list[index].read.active.push(vsId);
+                    if(!user.read.active.includes(game_id)){
+                        user.counts = user.counts - 1;
+                        user.read.active.push(game_id);
                     }
                 } else {
-                    list[index].counts = user.counts - 1;
-                    list[index].read.time = time;
-                    list[index].read.active = [vsId];
+                    user.counts = user.counts - 1;
+                    user.read.time = time;
+                    user.read.active = [game_id];
                 }
-                return userReference.set({ member: list }, { merge: true })
+                const updateObj: any = {};
+                updateObj[`user${user.userId}`] = user;
+                return userReference.update(updateObj)
                     .then(function () {
                         console.log("Document successfully written!");
                         return item
@@ -109,6 +110,7 @@ class PlayerModel {
     }
 
     public putPlayerMessages(req: any) {
+        verify.getToken(req);
         const teamId = req.query.teamId;
         const obj = req.body;
         const reference = db.collection('playersList').doc('messages');
@@ -127,6 +129,18 @@ class PlayerModel {
     //     const asyncData = dataBase.put({ reference: reference, setParams: setParams });
     //     return asyncData;
     // }
+
+    test(req: any) {
+        const reference = db.collection('playersList').doc('test');
+        const setParams = {
+            test1: {
+                age: 456,
+                name: 123
+            }
+        }
+        const asyncData = dataBase.put({ reference: reference, setParams });
+        return asyncData;
+    }
 }
 
 export const playerModel = new PlayerModel();
