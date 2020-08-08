@@ -93,12 +93,16 @@ class PlayerModel {
         const reference = db.collection('playersList').doc('messages');
         const formatResultFn = (result: any) => {
             const teamIdObj = `teamId${id}`
-            const filterItemList = result.data()[teamIdObj];
-            filterItemList.forEach((element: any) => {
-                const replyObj = `replyId${element.replyId}`;
-                element.replyConuts = result.data()[replyObj] ? result.data()[replyObj].length : 0;
-            });
-            filterItemList.sort((a: any, b: any) => { return new Date(a.time) > new Date(b.time) ? -1 : 1; });
+            let filterItemList = result.data()[teamIdObj];
+            if (filterItemList) {
+                filterItemList.forEach((element: any) => {
+                    const replyObj = `replyId${element.replyId}`;
+                    element.replyConuts = result.data()[replyObj] ? result.data()[replyObj].length : 0;
+                });
+                filterItemList.sort((a: any, b: any) => { return new Date(a.time) > new Date(b.time) ? -1 : 1; });
+            } else {
+                filterItemList = [];
+            }
             return filterItemList
         };
         const asyncData = dataBase.get({ reference: reference }, formatResultFn);
