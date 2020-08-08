@@ -1,7 +1,8 @@
 import { db } from "../detabase/setting";
-import { dataBase } from "../detabase/db-interface";
 import { verify } from "./verify-model";
+import { dataBase } from "../detabase/db-interface";
 import * as admin from 'firebase-admin';
+import { ErrorContent } from "../view-model/error-viewmodel";
 
 class PlayerModel {
     public getPlayersList(req: any) {
@@ -53,26 +54,34 @@ class PlayerModel {
             .then((query: any) => {
                 const list: any = Object.values(query.data());
                 const user = list.find((i: any) => i.account === account);
-                if (user.read.time === time) {
-                    if (!user.read.active.includes(game_id)) {
+                if (user.counts >= 0) {
+                    if (user.read.time === time) {
+                        if (!user.read.active.includes(game_id)) {
+                            user.counts = user.counts - 1;
+                            user.read.active.push(game_id);
+                        }
+                    } else {
                         user.counts = user.counts - 1;
-                        user.read.active.push(game_id);
+                        user.read.time = time;
+                        user.read.active = [game_id];
+                    }
+                    const updateObj: any = {};
+                    updateObj[`user${user.userId}`] = user;
+
+                    if (user.counts >= 0) {
+                        return userReference.update(updateObj)
+                            .then(function () {
+                                return item
+                            })
+                            .catch(function (error) {
+                                console.error("Error writing document: ", error);
+                            });
+                    } else {
+                        return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
                     }
                 } else {
-                    user.counts = user.counts - 1;
-                    user.read.time = time;
-                    user.read.active = [game_id];
+                    return { message: 'user unauthorized', errorStatus: 401 } as ErrorContent;
                 }
-                const updateObj: any = {};
-                updateObj[`user${user.userId}`] = user;
-                return userReference.update(updateObj)
-                    .then(function () {
-                        console.log("Document successfully written!");
-                        return item
-                    })
-                    .catch(function (error) {
-                        console.error("Error writing document: ", error);
-                    });
             })
             .catch(function (error) {
                 console.error("Error read document: ", error);
@@ -110,25 +119,27 @@ class PlayerModel {
     }
 
     public putPlayerMessages(req: any) {
-        verify.getToken(req);
         const teamId = req.query.teamId;
         const obj = req.body;
         const reference = db.collection('playersList').doc('messages');
         const teamIdObj = `teamId${teamId}`;
         const setParams: any = {};
-        setParams[teamIdObj] = admin.firestore.FieldValue.arrayUnion(obj);
+        if (verify.getToken(req).account === obj.author) {
+            setParams[teamIdObj] = admin.firestore.FieldValue.arrayUnion(obj);
+        }
         const asyncData = dataBase.put({ reference: reference, setParams: setParams });
         return asyncData;
     }
 
     public deletePlayerMessages(req: any) {
-        verify.getToken(req);
         const teamId = req.query.teamId;
         const obj = req.body;
         const reference = db.collection('playersList').doc('messages');
         const teamIdObj = `teamId${teamId}`;
         const setParams: any = {};
-        setParams[teamIdObj] = admin.firestore.FieldValue.arrayRemove(obj);
+        if (verify.getToken(req).account === obj.author) {
+            setParams[teamIdObj] = admin.firestore.FieldValue.arrayRemove(obj);
+        }
         const formatResultFn = (result: any) => {
             const deleteParams: any = {};
             deleteParams[`replyId${obj.replyId}`] = admin.firestore.FieldValue.delete();
@@ -139,25 +150,27 @@ class PlayerModel {
     }
 
     public putPlayerReply(req: any) {
-        verify.getToken(req);
         const replyId = req.query.replyId;
         const obj = req.body;
         const reference = db.collection('playersList').doc('messages');
         const replyIdObj = `replyId${replyId}`;
         const setParams: any = {};
-        setParams[replyIdObj] = admin.firestore.FieldValue.arrayUnion(obj);
+        if (verify.getToken(req).account === obj.author) {
+            setParams[replyIdObj] = admin.firestore.FieldValue.arrayUnion(obj);
+        }
         const asyncData = dataBase.put({ reference: reference, setParams: setParams });
         return asyncData;
     }
 
     public deletePlayerReply(req: any) {
-        verify.getToken(req);
         const replyId = req.query.replyId;
         const obj = req.body;
         const reference = db.collection('playersList').doc('messages');
         const replyIdObj = `replyId${replyId}`;
         const setParams: any = {};
-        setParams[replyIdObj] = admin.firestore.FieldValue.arrayRemove(obj);
+        if (verify.getToken(req).account === obj.author) {
+            setParams[replyIdObj] = admin.firestore.FieldValue.arrayRemove(obj);
+        }
         const asyncData = dataBase.put({ reference: reference, setParams: setParams });
         return asyncData;
     }

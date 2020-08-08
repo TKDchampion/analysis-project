@@ -29,7 +29,7 @@ class VerifyModel {
                     return this.formatResultErrorFn;
                 }
 
-                if (decoded.counts > 0) {
+                if (decoded.counts >= 0) {
                     return ftn
                 } else {
                     return this.formatResultErrorFn;
